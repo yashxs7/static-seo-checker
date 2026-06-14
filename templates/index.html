@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Static SEO Checker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <nav class="navbar">
+            <div class="logo">SEO Audit Tool</div>
+            <div class="nav-pill">Built with Flask + BeautifulSoup</div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">Static Website Analyzer</p>
+
+                <h1>Analyze any website’s on-page SEO in seconds.</h1>
+
+                <p class="hero-text">
+                    Check title tags, meta descriptions, headings, links, images,
+                    canonical tags, Open Graph data, robots.txt, sitemap.xml and more.
+                </p>
+
+                {% if error %}
+                    <div class="alert alert-error">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="POST" class="search-card">
+                    <input 
+                        type="text" 
+                        name="url" 
+                        placeholder="Enter website URL, e.g. example.com"
+                        required
+                    >
+
+                    <button type="submit">Analyze SEO</button>
+                </form>
+
+                <div class="feature-row">
+                    <span>Title Check</span>
+                    <span>Meta Check</span>
+                    <span>Image Alt</span>
+                    <span>CSV Export</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

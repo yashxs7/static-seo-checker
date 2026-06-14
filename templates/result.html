@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SEO Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <nav class="navbar">
+            <a href="/" class="logo link-logo">SEO Audit Tool</a>
+            <div class="nav-pill">Report Dashboard</div>
+        </nav>
+
+        {% if not result.success %}
+
+            <div class="container">
+                <div class="card alert-card">
+                    <h2>Analysis Failed</h2>
+                    <p>{{ result.error }}</p>
+                    <a href="/" class="secondary-btn">Try another URL</a>
+                </div>
+            </div>
+
+        {% else %}
+
+            <main class="container">
+
+                <section class="report-header">
+                    <div>
+                        <p class="eyebrow">SEO Audit Report</p>
+                        <h1>{{ result.url }}</h1>
+                        <p class="muted">Final URL: {{ result.final_url }}</p>
+                    </div>
+
+                    <div class="header-actions">
+                        <a href="{{ url_for('download_csv', url=result.url) }}" class="primary-btn">
+                            Download CSV
+                        </a>
+
+                        <a href="/" class="secondary-btn">
+                            New Scan
+                        </a>
+                    </div>
+                </section>
+
+                <section class="dashboard-grid">
+                    <div class="score-card">
+                        <p>SEO Score</p>
+                        <h2>{{ result.score.score }}</h2>
+                        <span>/100</span>
+                        <div class="grade-pill">{{ result.score.grade }}</div>
+                    </div>
+
+                    <div class="mini-card">
+                        <p>Status Code</p>
+                        <h3>{{ result.status_code }}</h3>
+                        <span>HTTP Response</span>
+                    </div>
+
+                    <div class="mini-card">
+                        <p>Response Time</p>
+                        <h3>{{ result.response_time }}s</h3>
+                        <span>Page Load Request</span>
+                    </div>
+
+                    <div class="mini-card">
+                        <p>Total Links</p>
+                        <h3>{{ result.links.total_links }}</h3>
+                        <span>{{ result.links.internal_count }} internal, {{ result.links.external_count }} external</span>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Recommendations</h2>
+                        <span class="badge badge-info">Action Plan</span>
+                    </div>
+
+                    <ul class="recommendation-list">
+                        {% for recommendation in result.recommendations %}
+                            <li>{{ recommendation }}</li>
+                        {% endfor %}
+                    </ul>
+                </section>
+
+                <section class="two-column">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Title Analysis</h2>
+                            <span class="badge badge-{{ result.title.status|lower }}">
+                                {{ result.title.status }}
+                            </span>
+                        </div>
+
+                        <p class="label">Title</p>
+                        <p class="value">{{ result.title.title or "Not found" }}</p>
+
+                        <div class="metric-row">
+                            <span>Length</span>
+                            <strong>{{ result.title.length }} characters</strong>
+                        </div>
+
+                        <p class="message">{{ result.title.message }}</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Meta Description</h2>
+                            <span class="badge badge-{{ result.meta.status|lower }}">
+                                {{ result.meta.status }}
+                            </span>
+                        </div>
+
+                        <p class="label">Description</p>
+                        <p class="value">{{ result.meta.description or "Not found" }}</p>
+
+                        <div class="metric-row">
+                            <span>Length</span>
+                            <strong>{{ result.meta.length }} characters</strong>
+                        </div>
+
+                        <p class="message">{{ result.meta.message }}</p>
+                    </div>
+
+                </section>
+
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Heading Structure</h2>
+                        <span class="badge badge-{{ result.headings.status|lower }}">
+                            {{ result.headings.status }}
+                        </span>
+                    </div>
+
+                    <p class="message">{{ result.headings.message }}</p>
+
+                    <div class="heading-grid">
+                        {% for tag, data in result.headings.headings.items() %}
+                            <div class="heading-box">
+                                <h3>{{ tag|upper }}</h3>
+                                <p>{{ data.count }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="heading-details">
+                        {% for tag, data in result.headings.headings.items() %}
+                            {% if data.texts %}
+                                <h3>{{ tag|upper }} Texts</h3>
+                                <ul>
+                                    {% for text in data.texts %}
+                                        <li>{{ text }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="two-column">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Image SEO</h2>
+                            <span class="badge badge-{{ result.images.status|lower }}">
+                                {{ result.images.status }}
+                            </span>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Total Images</span>
+                            <strong>{{ result.images.total_images }}</strong>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Missing Alt</span>
+                            <strong>{{ result.images.missing_alt_count }}</strong>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Empty Alt</span>
+                            <strong>{{ result.images.empty_alt_count }}</strong>
+                        </div>
+
+                        <p class="message">{{ result.images.message }}</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Link Analysis</h2>
+                            <span class="badge badge-info">Links</span>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Total Links</span>
+                            <strong>{{ result.links.total_links }}</strong>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Internal Links</span>
+                            <strong>{{ result.links.internal_count }}</strong>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>External Links</span>
+                            <strong>{{ result.links.external_count }}</strong>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>Empty Links</span>
+                            <strong>{{ result.links.empty_count }}</strong>
+                        </div>
+                    </div>
+
+                </section>
+
+                <section class="two-column">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Canonical Tag</h2>
+                            <span class="badge badge-{{ result.canonical.status|lower }}">
+                                {{ result.canonical.status }}
+                            </span>
+                        </div>
+
+                        <p class="label">Canonical URL</p>
+                        <p class="value">{{ result.canonical.url or "Not found" }}</p>
+
+                        <p class="message">{{ result.canonical.message }}</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Robots Meta</h2>
+                            <span class="badge badge-{{ result.robots_meta.status|lower }}">
+                                {{ result.robots_meta.status }}
+                            </span>
+                        </div>
+
+                        <p class="label">Content</p>
+                        <p class="value">{{ result.robots_meta.content or "Not found" }}</p>
+
+                        <p class="message">{{ result.robots_meta.message }}</p>
+                    </div>
+
+                </section>
+
+                <section class="two-column">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Open Graph Tags</h2>
+                            <span class="badge badge-{{ result.open_graph.status|lower }}">
+                                {{ result.open_graph.status }}
+                            </span>
+                        </div>
+
+                        <p class="message">{{ result.open_graph.message }}</p>
+
+                        <div class="tag-list">
+                            {% for tag, data in result.open_graph.tags.items() %}
+                                <div class="metric-row">
+                                    <span>{{ tag }}</span>
+                                    {% if data.found %}
+                                        <strong class="good-text">Found</strong>
+                                    {% else %}
+                                        <strong class="bad-text">Missing</strong>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Structured Data</h2>
+                            <span class="badge badge-{{ result.structured_data.status|lower }}">
+                                {{ result.structured_data.status }}
+                            </span>
+                        </div>
+
+                        <div class="metric-row">
+                            <span>JSON-LD Blocks</span>
+                            <strong>{{ result.structured_data.count }}</strong>
+                        </div>
+
+                        <p class="message">{{ result.structured_data.message }}</p>
+                    </div>
+
+                </section>
+
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Site Files</h2>
+                        <span class="badge badge-info">Crawlability</span>
+                    </div>
+
+                    <div class="two-column simple-gap">
+                        <div class="site-file-box">
+                            <h3>robots.txt</h3>
+
+                            {% if result.site_files.robots_txt.found %}
+                                <p class="good-text">Found</p>
+                            {% else %}
+                                <p class="bad-text">Missing</p>
+                            {% endif %}
+
+                            <small>{{ result.site_files.robots_txt.url }}</small>
+                        </div>
+
+                        <div class="site-file-box">
+                            <h3>sitemap.xml</h3>
+
+                            {% if result.site_files.sitemap_xml.found %}
+                                <p class="good-text">Found</p>
+                            {% else %}
+                                <p class="bad-text">Missing</p>
+                            {% endif %}
+
+                            <small>{{ result.site_files.sitemap_xml.url }}</small>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+        {% endif %}
+
+    </div>
+</body>
+</html>
